@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+    <style>
+        #board{
+            text-align: center;
+        }
+        .cell{
+            width: 25px;
+            height: 25px;
+            background: orange;
+            line-height: 25px;
+            text-align: center;
+            font-size: 12.5px;
+            display: inline-block;
+            vertical-align: middle;
+            border: 1px solid #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <script>
+        // 棋盘初始数组
+        let pattern = []
+        for(let i = 0; i < 15 * 15; i++){
+            pattern.push(0)
+        }
+        console.log(pattern)
+
+        let color = 2
+
+        // 创建棋盘
+        function show(){
+            let board = document.getElementById('board')
+
+            board.innerHTML = ''
+
+            for(let i = 0; i < 15; i++){
+                for(let j = 0; j < 15; j++){
+                    let cell = document.createElement('div')
+                    cell.classList.add('cell')
+                    cell.innerText = 
+                        pattern[i * 15 + j] === 2 ? '❌' : 
+                        pattern[i * 15 + j] === 1 ? '⭕️' : ''
+                    cell.addEventListener('click', () => userMove(i, j))
+                    board.appendChild(cell)
+                }
+                board.appendChild(document.createElement('br'))
+            }
+        }
+        // 玩家下子
+        function userMove(x, y){
+            if(pattern[x * 15 + y]){
+                return
+            }else{
+                pattern[x * 15 + y] = color
+            }
+            
+            if(check(pattern, color)){
+                alert(color === 2 ? '❌ is winner' : '⭕️ is winner')
+            }
+            color = 3 - color
+            show()
+            // computerMove()
+        }
+        // 电脑下子
+        function computerMove(){
+            let choice = bestChoice(pattern, color)
+            if(choice.point){
+                pattern[choice.point[1] * 15 + choice.point[0]] = color
+            }
+            if(check(pattern, color)){
+                alert(color === 2 ? '❌ is winner' : '⭕️ is winner')
+            }
+            color = 3 - color
+            show()
+        }
+        // 检测胜负
+        function check(pattern, color){
+            // 判断行
+            for(let i = 0; i < 15; i++){
+                let win = true
+                for(let j = 0; j < 15; j++){
+                    if(pattern[i * 15 + j] != color) win = false
+                }
+                if(win) {
+                    return true
+                }
+            }
+            // 判断列
+            for(let i = 0; i < 15; i++){
+                let win = true
+                for(let j = 0; j < 15; j++){
+                    if(pattern[j * 15 + i] != color) win = false
+                }
+                if(win) {
+                    return true
+                }
+            }
+            // 判断对角线\
+            {
+                let win = true
+                for(let i = 0; i < 15; i++){
+                    if(pattern[i * 15 + i] != color) win = false
+                }
+                if(win) {
+                    return true
+                }
+            }
+            // 判断对角线/ 相加 = 2
+            {
+                let win = true
+                for(let i = 0; i < 15; i++){
+                    if(pattern[i][i * 15 + 2 - i] != color) win = false
+                }
+                if(win) {
+                    return true
+                }
+            }
+            return false
+        }
+        // 克隆函数
+        function clone(pattern){
+            return Object.create(pattern)
+        }
+        // 检测是否要赢
+        function willWin(pattern, color){
+            for(let i = 0; i < 15; i++){
+                for(let j = 0; j < 15; j++){
+                    if(pattern[i * 15 + j]) 
+                        continue
+                    let tmp = clone(pattern)
+                    tmp[i * 15 + j] = color
+                    if(check(tmp, color)) {
+                        
+                        return [j, i]
+                    }
+                }
+            }
+            return null
+        }
+        // 落子策略
+        function bestChoice(pattern, color){
+            let point = willWin(pattern, color)
+            if(point){
+                return {
+                    point: point,
+                    result: 1
+                }
+            }
+            let result = -2
+
+            outer:for(let i = 0; i < 15; i++){
+                for(let j = 0; j < 15; j++){
+                    if(pattern[i * 15 + j]) 
+                        continue
+                    let tmp = clone(pattern)
+                    tmp[i * 15 + j] = color
+                    
+                    let opp = bestChoice(tmp, 3 - color)
+                    
+                    if(-opp.result > result){
+                        point = [j, i]
+                        result = -opp.result
+                    }
+                    if(result === 1){
+                        break outer
+                    }
+                }
+            }
+            return {
+                point: point,
+                result: point ? result : '0'
+            }
+        }
+        show()
+    </script>
+</body>
+</html>
