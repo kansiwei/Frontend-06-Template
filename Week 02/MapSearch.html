@@ -52,8 +52,8 @@
                 this.data.push(v)
             }
             get length() {
-      return this.data.length
-    }
+                return this.data.length
+            }
         }
         let map = localStorage['map'] ? JSON.parse(localStorage['map']) : Array(10000).fill(0)
 
@@ -101,13 +101,14 @@
         async function findPath(map, start, end){
             let table = Object.create(map)
             let queue = new Sorted([start], (a,b) => distance(a) - distance(b));
-            console.log(queue.length)
             // 初始化终点
             // initPoint(end[0], end[1], 'blue')
             async function insert(x, y, pre){
                 if(x < 0 || x >= 100 || y < 0 || y >= 100) return
                 if(table[y * 100 + x]) return
+
                 box.children[y * 100 + x].style.backgroundColor = 'lightgreen'
+
                 table[y * 100 + x] = pre
                 queue.give([x, y])
                 
@@ -124,7 +125,7 @@
                     let path = []
                     while( x != start[0] || y != start[1]){
                         path.push(map[y * 100 + x]);
-                        await sleep(30);
+                        // await sleep(30);
                         [x, y] =  table[y * 100 + x];
                         box.children[y * 100 + x].style.backgroundColor = 'red'
                     }
